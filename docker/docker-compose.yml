@@ -22,6 +22,7 @@ services:
       - "8000:80"
     volumes:
       - ../:/var/www
+      - ./local.ini:/usr/local/etc/php/config.d/local.ini
       - ./nginx:/etc/nginx/conf.d
   db:
     container_name: expennies-db
