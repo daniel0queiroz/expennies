@@ -60,4 +60,36 @@ class AuthController
 
         return $response;
     }
+
+    public function logIn(Request $request, Response $response): Response
+    {
+        // Validate the request data
+        $data = $request->getParsedBody();
+
+        $v = new Validator($data);
+        $v->rule('required', ['email', 'password']);
+        $v->rule('email', 'email');
+
+        // Check user credentials
+        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $data['email']]);
+
+        if(! $user || password_verify($data['password'], $user->getPassword())) {
+            throw new ValidationException(['password' => ['You have entered an invalid username or password']]);
+        }
+
+        session_regenerate_id();
+
+        //Save user id in the session
+        $_SESSION['user'] = $user->getId();
+
+        //Redirect the user to the home page
+        return $response->withHeader('Location', '/')->withStatus(302);
+    }
+
+    public function logOut(Request $request, Response $response): Response
+    {
+        //TODO
+
+        return $response->withHeader('Location', '/')->withStatus(302);
+    }
 }
