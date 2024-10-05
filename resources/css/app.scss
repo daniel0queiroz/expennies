@@ -1,13 +1,17 @@
-$primary: #018EFC;
-
+@import "./variables.scss";
 @import "~bootstrap/scss/bootstrap";
 
 * {
-  font-family: 'Roboto', sans-serif !important;
+  font-family: "Roboto", sans-serif !important;
 }
 
 body {
   background-color: #e7ebee;
+}
+
+svg.icon {
+  width: 30px;
+  height: 30px;
 }
 
 .nav-link {
@@ -15,10 +19,11 @@ body {
 
   &.active {
     background-color: inherit !important;
-    color: #57585A !important;
+    color: #57585a !important;
   }
 
-  &:hover, &:focus {
-    color: #57585A !important;
+  &:hover,
+  &:focus {
+    color: #57585a !important;
   }
 }

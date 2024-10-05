@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace App\Controllers;
 
+use App\Contracts\AuthInterface;
 use App\Entity\User;
 use App\Exception\ValidationException;
 use Doctrine\ORM\EntityManager;
@@ -14,8 +15,11 @@ use Valitron\Validator;
 
 class AuthController
 {
-    public function __construct(private readonly Twig $twig, private readonly EntityManager $entityManager)
-    {
+    public function __construct(
+        private readonly Twig $twig,
+        private readonly EntityManager $entityManager,
+        private readonly AuthInterface $auth
+    ) {
     }
 
     public function loginView(Request $request, Response $response): Response
@@ -33,22 +37,21 @@ class AuthController
         $data = $request->getParsedBody();
 
         $v = new Validator($data);
+
         $v->rule('required', ['name', 'email', 'password', 'confirmPassword']);
         $v->rule('email', 'email');
-        $v->rule('equals', 'confirmPassord', 'password')->label('Confirm Password');
+        $v->rule('equals', 'confirmPassword', 'password')->label('Confirm Password');
         $v->rule(
             fn($field, $value, $params, $fields) => ! $this->entityManager->getRepository(User::class)->count(
                 ['email' => $value]
             ),
             'email'
         )->message('User with the given email address already exists');
-        if($v->validate()) {
-            echo "Yay! We're all good!";
-        } else {
+
+        if (! $v->validate()) {
             throw new ValidationException($v->errors());
         }
 
-        exit;
         $user = new User();
 
         $user->setName($data['name']);
@@ -63,32 +66,23 @@ class AuthController
 
     public function logIn(Request $request, Response $response): Response
     {
-        // Validate the request data
         $data = $request->getParsedBody();
 
         $v = new Validator($data);
+
         $v->rule('required', ['email', 'password']);
         $v->rule('email', 'email');
 
-        // Check user credentials
-        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => $data['email']]);
-
-        if(! $user || password_verify($data['password'], $user->getPassword())) {
+        if(! $this->auth->attemptLogin($data)) {
             throw new ValidationException(['password' => ['You have entered an invalid username or password']]);
         }
 
-        session_regenerate_id();
-
-        //Save user id in the session
-        $_SESSION['user'] = $user->getId();
-
-        //Redirect the user to the home page
         return $response->withHeader('Location', '/')->withStatus(302);
     }
 
     public function logOut(Request $request, Response $response): Response
     {
-        //TODO
+        $this->auth->logOut();
 
         return $response->withHeader('Location', '/')->withStatus(302);
     }
