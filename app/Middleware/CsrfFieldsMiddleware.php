@@ -13,16 +13,14 @@ use Slim\Views\Twig;
 
 class CsrfFieldsMiddleware implements MiddlewareInterface
 {
-    public function __construct(
-        private readonly Twig $twig,
-        private readonly ContainerInterface $container
-    ) {
+    public function __construct(private readonly Twig $twig, private readonly ContainerInterface $container)
+    {
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $csrf = $this->container->get('csrf');
-        
+
         $csrfNameKey  = $csrf->getTokenNameKey();
         $csrfValueKey = $csrf->getTokenValueKey();
         $csrfName     = $csrf->getTokenName();
@@ -44,6 +42,7 @@ CSRF_Fields;
                 'fields' => $fields,
             ]
         );
+
         return $handler->handle($request);
     }
 }
