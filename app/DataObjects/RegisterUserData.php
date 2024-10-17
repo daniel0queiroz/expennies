@@ -11,6 +11,5 @@ class RegisterUserData
         public readonly string $email,
         public readonly string $password
     ) {
-        
     }
 }
