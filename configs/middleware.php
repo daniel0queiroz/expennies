@@ -3,7 +3,6 @@
 declare(strict_types = 1);
 
 use App\Config;
-use App\Middleware\AuthenticateMiddleware;
 use App\Middleware\CsrfFieldsMiddleware;
 use App\Middleware\OldFormDataMiddleware;
 use App\Middleware\StartSessionsMiddleware;
@@ -26,6 +25,7 @@ return function (App $app) {
     $app->add(ValidationErrorsMiddleware::class);
     $app->add(OldFormDataMiddleware::class);
     $app->add(StartSessionsMiddleware::class);
+    $app->addBodyParsingMiddleware();
     $app->addErrorMiddleware(
         (bool) $config->get('display_error_details'),
         (bool) $config->get('log_errors'),
