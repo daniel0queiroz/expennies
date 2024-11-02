@@ -49,14 +49,14 @@ class CategoriesController
     {
         $this->categoryService->delete((int) $args['id']);
 
-        return $response->withHeader('Location', '/categories')->withStatus(302);
+        return $response;
     }
 
     public function get(Request $request, Response $response, array $args): Response
     {
         $category = $this->categoryService->getById((int) $args['id']);
 
-        if(! $category) {
+        if (! $category) {
             return $response->withStatus(404);
         }
 
@@ -66,19 +66,19 @@ class CategoriesController
     }
 
     public function update(Request $request, Response $response, array $args): Response
-    {   
+    {
         $data = $this->requestValidatorFactory->make(UpdateCategoryRequestValidator::class)->validate(
             $args + $request->getParsedBody()
         );
 
         $category = $this->categoryService->getById((int) $data['id']);
 
-        if(! $category) {
+        if (! $category) {
             return $response->withStatus(404);
         }
 
         $this->categoryService->update($category, $data['name']);
 
-        return $this->responseFormatter->asJson($response, $data);
+        return $response;
     }
 }
