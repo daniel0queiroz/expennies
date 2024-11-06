@@ -33,14 +33,14 @@ class CategoryService
             ->setFirstResult($params->start)
             ->setMaxResults($params->length);
 
-            $orderBy = in_array($params->orderBy, ['name', 'createdAt', 'updatedAt']) ? $params->orderBy : 'updatedAt';
-            $orderDir = strtolower($params->orderDir) === 'asc' ? 'asc' : 'desc';
+        $orderBy  = in_array($params->orderBy, ['name', 'createdAt', 'updatedAt']) ? $params->orderBy : 'updatedAt';
+        $orderDir = strtolower($params->orderDir) === 'asc' ? 'asc' : 'desc';
 
-            if(! empty($params->searchTerm)) {
-                $query->where('c.name LIKE :name')->setParameter('name', '%' . addcslashes($params->searchTerm, '%_') . '%');
-            }
+        if (! empty($params->searchTerm)) {
+            $query->where('c.name LIKE :name')->setParameter('name', '%' . addcslashes($params->searchTerm, '%_') . '%');
+        }
 
-            $query->orderBy('c.' . $orderBy, $orderDir);
+        $query->orderBy('c.' . $orderBy, $orderDir);
 
         return new Paginator($query);
     }
@@ -66,5 +66,13 @@ class CategoryService
         $this->entityManager->flush();
 
         return $category;
+    }
+
+    public function getCategoryNames(): array
+    {
+        return $this->entityManager->getRepository(Category::class)->createQueryBuilder('c')
+            ->select('c.id', 'c.name')
+            ->getQuery()
+            ->getArrayResult();
     }
 }
